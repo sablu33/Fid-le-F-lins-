@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="wi=dth=device-width, initial-scale=1.0">
+  <title>Boutique Animaux - Dropshipping</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=EUR"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <nav>
+      <div class="container">
+        <ul>
+          <li><a href="#">Accueil</a></li>
+          <li><a href="#">Produits</a></li>
+          <li><a href="#">Panier (<span id="cart-count">0</span>)</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Section Produits -->
+  <section id="products" class="container">
+    <h2>Produits pour Chats et Chiens</h2>
+    <div id="product-list" class="product-container">
+      <!-- Les produits seront ajoutés ici via JavaScript -->
+    </div>
+  </section>
+
+  <!-- Section Panier -->
+  <section id="cart" class="container">
+    <h2>Votre Panier</h2>
+    <ul id="cart-items">
+      <!-- Les produits du panier -->
+    </ul>
+    <p>Total: <span id="cart-total">€0.00</span></p>
+    
+    <!-- PayPal Button -->
+    <div id="paypal-button-container"></div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
+/* styles.css */
+
+/* Général */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  background-color: #fef7e4; /* Couleur douce pour l'ambiance */
+  color: #333;
+  padding: 20px;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+/* Navbar */
+header {
+  background-color: #ff7f50; /* Couleur chaleureuse */
+  padding: 10px 0;
+  border-radius: 10px;
+}
+
+nav ul {
+  list-style-type: none;
+  display: flex;
+  justify-content: center;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  text-align: center;
+}
+
+nav a:hover {
+  background-color: #ff4500;
+  border-radius: 5px;
+}
+
+/* Section Produits */
+#products h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #ff7f50;
+  margin-bottom: 20px;
+}
+
+.product-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.product {
+  background-color: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 220px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.product:hover {
+  transform: translateY(-5px);
+}
+
+.product img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.product h3 {
+  font-size: 18px;
+  color: #333;
+  margin-top: 10px;
+}
+
+.product p {
+  font-size: 16px;
+  color: #555;
+}
+
+button {
+  background-color: #ff7f50;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #ff4500;
+}
+
+/* Section Panier */
+#cart {
+  background-color: #ffffff;
+  padding: 20px;
+  margin-top: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#cart h2 {
+  color: #ff7f50;
+  text-align: center;
+}
+
+#cart-items {
+  list-style-type: none;
+  margin-bottom: 20px;
+}
+
+#cart-items li {
+  padding: 8px 0;
+  font-size: 16px;
+}
+
+#paypal-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+// Liste des produits
+const products = [
+  {
+    id: 1,
+    name: 'Jouet pour Chien',
+    price: 15.99,
+    image: 'https://via.placeholder.com/200x200?text=Jouet+Chien'
+  },
+  {
+    id: 2,
+    name: 'Arbre à Chat',
+    price: 39.99,
+    image: 'https://via.placeholder.com/200x200?text=Arbre+Chat'
+  },
+  {
+    id: 3,
+    name: 'Nourriture pour Chien',
+    price: 25.99,
+    image: 'https://via.placeholder.com/200x200?text=Nourriture+Chien'
+  },
+  {
+    id: 4,
+    name: 'Lit pour Chat',
+    price: 19.99,
+    image: 'https://via.placeholder.com/200x200?text=Lit+Chat'
+  }
+];
+
+// Afficher les produits sur la page
+const productList = document.getElementById('product-list');
+products.forEach(product => {
+  const productDiv = document.createElement('div');
+  productDiv.classList.add('product');
+  productDiv.innerHTML = `
+    <img src="${product.image}" alt="${product.name}">
+    <h3>${product.name}</h3>
+    <p>€${product.price}</p>
+    <button class="add-to-cart" data-id="${product.id}">Ajouter au panier</button>
+  `;
+  productList.appendChild(productDiv);
+});
+
+// Panier
+let cart = [];
+
+// Mettre à jour le panier
+function updateCart() {
+  const cartCount = document.getElementById('cart-count');
+  cartCount.textContent = cart.length;
+
+  const cartItemsList = document.getElementById('cart-items');
+  cartItemsList.innerHTML = '';
+
+  let total = 0;
+  cart.forEach(item => {
+    const listItem = document.createElement('li');
+    listItem.textContent = `${item.name} - €${item.price}`;
+    cartItemsList.appendChild(listItem);
+    total += item.price;
+  });
+
+  const cartTotal = document.getElementById('cart-total');
+  cartTotal.textContent = `€${total.toFixed(2)}`;
+}
+
+// Ajouter un produit au panier
+document.querySelectorAll('.add-to-cart').forEach(button => {
+  button.addEventListener('click', () => {
+    const productId = parseInt(button.getAttribute('data-id'));
+    const product = products.find(p => p.id === productId);
+    cart.push(product);
+    updateCart();
+  });
+});
+
+// Configuration du bouton PayPal
+paypal.Buttons({
+  createOrder: function(data, actions) {
+    return actions.order.create({
+      purchase_units: [{
+        amount: {
+          value: cart.reduce((total, item) => total + item.price, 0).toFixed(2)
+        }
+      }]
+    });
+  },
+  onApprove: function(data, actions) {
+    return actions.order.capture().then(function(details) {
+      alert('Merci pour votre achat, ' + details.payer.name.given_name + '!');
+      cart = []; // Vider le panier après achat
+      updateCart();
+    });
+  }
+}).render('#paypal-button-container');
